@@ -1,0 +1,28 @@
+Reproduction of firstmate#2787 - "Lock acquisition recurses through .steal
+suffixes when initial lock creation fails" - driven through the real
+fm_lock_try_acquire, base revision vs this branch's HEAD.
+
+Setup, identical for both runs: a firstmate home holding a stale .watch.lock
+(recorded pid is dead, mtime backdated past every freshness grace) inside a
+state directory that accepts no new entries, so mktemp -d, mkdir and ln -s all
+fail exactly as they do when the volume is out of space - the condition the
+captain hit. A 25s watchdog bounds each run because the pre-fix path never
+returns on its own.
+
+### BASE-8714c9a-before-the-fix
+exit status : 137  (killed by the watchdog - it never returned)
+outcome     : 
+deepest lock path attempted:
+              .watch.lock.steal.steal.steal.steal.steal.steal.steal.steal.steal.stea... (truncated)
+steal levels: 1444
+operator-visible filesystem errors:
+              883 x: basename: <state>/.watch.lock.steal.steal....: File name too long
+
+### HEAD-d21fc96-with-the-fix
+exit status : 1
+outcome     : RESULT: refused (exit 1) FM_LOCK_FAIL_REASON=unavailable FM_LOCK_HELD_PID=99999
+deepest lock path attempted:
+              .watch.lock.steal... (truncated)
+steal levels: 1
+operator-visible filesystem errors:
+              0 x: basename: <state>/.watch.lock.steal.steal....: File name too long

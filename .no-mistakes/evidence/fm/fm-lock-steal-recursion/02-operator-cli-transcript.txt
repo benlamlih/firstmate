@@ -1,0 +1,21 @@
+Operator CLI transcript: arming the watcher in a firstmate home whose state
+directory can no longer accept new entries - the out-of-disk shape from #2787.
+Same command, same home, base revision vs this branch's HEAD.
+
+===== BASE 8714c9a - before the fix =====
+state dir is read-only, so mkdir / ln -s / mktemp all fail, exactly as under ENOSPC
+
+$ FM_STATE_OVERRIDE=<home>/state bin/fm-watch.sh
+  ... 736 x "basename: <home>/state/.watch.lock.steal.steal.steal...: File name too long"
+  deepest path attempted: .watch.lock + 905 x ".steal"
+  -> [killed after 25s - it never returned]
+
+===== HEAD d21fc96 - with the fix =====
+state dir is read-only, so mkdir / ln -s / mktemp all fail, exactly as under ENOSPC
+
+$ FM_STATE_OVERRIDE=<home>/state bin/fm-watch.sh
+fm_lock: <home>/state/.watch.lock: cannot create the lock and none exists to reclaim - the filesystem refused the operation (out of space, read-only, or not writable); refusing to acquire
+PR_CHECK_MIGRATION: watcher exclusion could not be acquired; review state/.watch.lock before rearming polls
+watcher: PR check migration blocked; refusing to execute state checks
+  -> [exit 1]
+

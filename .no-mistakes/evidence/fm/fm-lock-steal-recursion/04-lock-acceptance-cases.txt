@@ -1,0 +1,23 @@
+Behavioural cases that carry each accepted acceptance criterion, from the
+colocated suite that owns the lock contract (tests/fm-watcher-lock.test.sh).
+
+  ok - concurrent fm_lock_try_acquire yields exactly one winner
+  ok - concurrent stale-lock steal yields exactly one winner
+  ok - live steal mutex is not reclaimed
+  ok - live-held lock is not stolen
+  ok - paused mid-acquire claimant backs off to active stealer
+  ok - a lock the filesystem cannot create is refused once, not retried into a longer path
+  ok - a failing filesystem primitive is distinguishable from a lock that is simply held
+  ok - a claim whose pid write is refused reports unavailable, not a held lock
+  ok - a claim whose owner directory a racer removed is contention, not a refusing filesystem
+  ok - an EEXIST race whose winner then releases is contention, not a refusing filesystem
+  ok - a contended lock that vanished before the caller looked is acquired, not reported as held
+  ok - watcher refuses loudly when the lock cannot be created
+  ok - stale-owner reclaim never appends a second .steal level
+  ok - legacy .steal chains are cleared without evicting a live holder
+  ok - an orphan steal mutex beside an absent primary lock is reclaimed, not treated as held
+  ok - an absent primary lock still refuses a live mutex owner and an uncreatable path
+  ok - concurrent reclaim through a stale steal mutex yields exactly one winner
+  ok - a stalled reclaim race through one steal mutex yields at most one publisher
+  ok - an abandoned-claim release refuses to remove the lock once its steal mutex is gone
+  ok - a wait on an uncreatable lock keeps refusing, loudly and boundedly
